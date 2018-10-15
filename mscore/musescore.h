@@ -725,6 +725,7 @@ class AudioAttribution {
       AudioAttribution(Score* score);
       void registerSoundfont(const QString& file, const QString& INAM, const QString& ICOP, const QString& ICMT);
       QByteArray getAttribution() const { return _attr.toJson(QJsonDocument::Compact); }
+      QByteArray getAsID3();
       };
 
 extern MuseScore* mscore;
