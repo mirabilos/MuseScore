@@ -5786,22 +5786,27 @@ AudioAttribution::AudioAttribution(Score* score)
 //   registerSoundfont
 //---------------------------------------------------------
 
-//XXX to be reviewed, to get the most out of both SF2/SF3 and SFZ
-void AudioAttribution::registerSoundfont(const QString& file, const QString& INAM, const QString& ICOP, const QString& ICMT)
+//XXX to be reviewed, to get the most out of SFZ as well
+void AudioAttribution::registerSoundfont(const QString& file, const QString& INAM, const QString& ICRD, const QString& IENG, const QString& ICOP, const QString& ICMT)
       {
       QString tfile = file.trimmed();
       if (_soundfonts.contains(tfile))
             return;
       QJsonObject sf;
-      sf.insert(QString("name"), QJsonValue(INAM.trimmed()));
       _soundfonts.insert(tfile, sf);
 
-      QString tcopy = ICOP.trimmed();
-      if (!tcopy.isEmpty())
-            sf.insert(QString("copyright"), QJsonValue(tcopy));
-      QString tcomm = ICMT.trimmed();
-      if (!tcomm.isEmpty())
-            sf.insert(QString("comment"), QJsonValue(tcomm));
+#define handle_arg(arg, label) do {                         \
+      QString t##arg = arg.trimmed();                       \
+      if (!t##arg.isEmpty())                                \
+            sf.insert(QString(label), QJsonValue(t##arg));  \
+} while (/* CONSTCOND */ 0)
+
+      handle_arg(INAM, "name");
+      handle_arg(ICRD, "date");
+      handle_arg(IENG, "engineer");
+      handle_arg(ICOP, "copyright");
+      handle_arg(ICMT, "comment");
+#undef handle_arg
       }
 
 //---------------------------------------------------------
