@@ -5746,6 +5746,60 @@ bool MuseScore::saveMp3(Score* score, const QString& name)
 #endif
       }
 
+//---------------------------------------------------------
+//   AudioAttribution
+//---------------------------------------------------------
+
+AudioAttribution::AudioAttribution(Score* score)
+      {
+      QJsonObject toplev;
+      QJsonObject producer;
+      QJsonObject scoreobj;
+      QJsonObject scoremeta;
+
+      producer.insert(QString("name"), QJsonValue("MuseScore"));
+      producer.insert(QString("version"), QJsonValue(VERSION));
+      producer.insert(QString("revision"), QJsonValue(revision));
+
+      // sorted iterator
+      QMapIterator<QString, QString> i(score->metaTags());
+      while (i.hasNext()) {
+            i.next();
+            if (i.value().isEmpty())
+                  continue;
+            scoremeta.insert(i.key(), QJsonValue(i.value()));
+            }
+      scoreobj.insert(QString("file"), score->fileInfo()->fileName());
+      scoreobj.insert(QString("meta"), scoremeta);
+
+      toplev.insert(QString("producer"), producer);
+      toplev.insert(QString("score"), scoreobj);
+      toplev.insert(QString("soundfonts"), _soundfonts);
+      _attr.setObject(toplev);
+      }
+
+//---------------------------------------------------------
+//   registerSoundfont
+//---------------------------------------------------------
+
+//XXX to be reviewed, to get the most out of both SF2/SF3 and SFZ
+void AudioAttribution::registerSoundfont(const QString& file, const QString& INAM, const QString& ICOP, const QString& ICMT)
+      {
+      QString tfile = file.trimmed();
+      if (_soundfonts.contains(tfile))
+            return;
+      QJsonObject sf;
+      sf.insert(QString("name"), QJsonValue(INAM.trimmed()));
+      _soundfonts.insert(tfile, sf);
+
+      QString tcopy = ICOP.trimmed();
+      if (!tcopy.isEmpty())
+            sf.insert(QString("copyright"), QJsonValue(tcopy));
+      QString tcomm = ICMT.trimmed();
+      if (!tcomm.isEmpty())
+            sf.insert(QString("comment"), QJsonValue(tcomm));
+      }
+
 }
 
 using namespace Ms;

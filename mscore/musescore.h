@@ -713,6 +713,20 @@ class MuseScore : public QMainWindow, public MuseScoreCore {
       Q_INVOKABLE bool isInstalledExtension(QString extensionId);
       };
 
+//---------------------------------------------------------
+//   AudioAttribution
+//---------------------------------------------------------
+
+class AudioAttribution {
+      QJsonDocument _attr;
+      QJsonObject _soundfonts;
+
+   public:
+      AudioAttribution(Score* score);
+      void registerSoundfont(const QString& file, const QString& INAM, const QString& ICOP, const QString& ICMT);
+      QByteArray getAttribution() const { return _attr.toJson(QJsonDocument::Compact); }
+      };
+
 extern MuseScore* mscore;
 extern QStringList recentScores;
 extern QString dataPath;
