@@ -5786,8 +5786,7 @@ AudioAttribution::AudioAttribution(Score* score)
 //   registerSoundfont
 //---------------------------------------------------------
 
-//XXX to be reviewed, to get the most out of SFZ as well
-void AudioAttribution::registerSoundfont(const QString& file, const QString& INAM, const QString& ICRD, const QString& IENG, const QString& ICOP, const QString& ICMT)
+void AudioAttribution::registerSoundfont(const QString& file, const QString& format, const QString& INAM, const QString& ICRD, const QString& IENG, const QString& ICOP, const QString& ICMT)
       {
       QString tfile = file.trimmed();
       if (_soundfonts.contains(tfile))
@@ -5801,6 +5800,7 @@ void AudioAttribution::registerSoundfont(const QString& file, const QString& INA
             sf.insert(QString(label), QJsonValue(t##arg));  \
 } while (/* CONSTCOND */ 0)
 
+      handle_arg(format, "format");
       handle_arg(INAM, "name");
       handle_arg(ICRD, "date");
       handle_arg(IENG, "engineer");

@@ -723,7 +723,8 @@ class AudioAttribution {
 
    public:
       AudioAttribution(Score* score);
-      void registerSoundfont(const QString& file, const QString& INAM, const QString& ICRD, const QString& IENG, const QString& ICOP, const QString& ICMT);
+      void registerSoundfont(const QString& file, const QString& format, const QString& INAM, const QString& ICRD, const QString& IENG, const QString& ICOP, const QString& ICMT);
+      void registerSoundfont(const QString& file, const QString& format);
       QByteArray getAttribution() const { return _attr.toJson(QJsonDocument::Compact); }
       QByteArray getAsID3();
       };
