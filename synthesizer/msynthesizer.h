@@ -75,7 +75,7 @@ class MasterSynthesizer : public QObject {
 
       void process(unsigned, float*);
       void play(const NPlayEvent&, unsigned);
-      void registerSoundfont(AudioAttribution &, int, unsigned);
+      void registerSoundfont(AudioAttribution&, int, unsigned);
 
       void setMasterTuning(double val);
       double masterTuning() const      { return _masterTuning; }
