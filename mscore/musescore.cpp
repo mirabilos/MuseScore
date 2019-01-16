@@ -5594,7 +5594,7 @@ bool MuseScore::saveMp3(Score* score, const QString& name)
             progress.show();
 
       AudioAttribution attribs(score);
-      for (const MidiMapping& mm : score->midiMapping()) {
+      foreach(const MidiMapping& mm, *score->midiMapping()) {
             int syntiIdx = synti->index(mm.articulation->synti);
             synti->attributeSoundfont(attribs, mm.articulation->channel, syntiIdx);
             }
