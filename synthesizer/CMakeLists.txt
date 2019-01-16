@@ -24,6 +24,7 @@ add_library (synthesizer STATIC
       msynthesizer.cpp
       event.cpp
       synthesizergui.cpp
+      audioattribution.cpp
       ${INCS}
       )
 set_target_properties (

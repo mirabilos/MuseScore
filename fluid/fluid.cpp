@@ -18,6 +18,7 @@
  * 02111-1307, USA
  */
 
+#include "synthesizer/audioattribution.h"
 #include "synthesizer/event.h"
 #include "synthesizer/msynthesizer.h"
 #include "mscore/preferences.h"
@@ -600,6 +601,20 @@ QStringList Fluid::soundFonts() const
       foreach (SFont* f, sfonts)
             sf.append(QFileInfo(f->get_name()).fileName());
       return sf;
+      }
+
+//---------------------------------------------------------
+//   attributeSoundfont
+//---------------------------------------------------------
+
+void Fluid::attributeSoundfont(const AudioAttribution& attr, int ch)
+      {
+      if (ch >= channel.size()) {
+            fprintf(stderr, "Fluid::attributeSoundfont: channel %d out of bounds\n", ch);
+            return;
+            }
+      //…
+      fprintf(stderr, "Fluid::attributeSoundfont: not yet implemented\n");
       }
 
 //---------------------------------------------------------

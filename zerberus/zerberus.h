@@ -127,6 +127,7 @@ class Zerberus : public Ms::Synthesizer {
       virtual bool removeSoundFont(const QString&);
       virtual bool loadSoundFonts(const QStringList&);
       virtual QStringList soundFonts() const;
+      virtual void attributeSoundfont(const Ms::AudioAttribution&, int);
 
       virtual Ms::SynthesizerGui* gui();
       static QFileInfoList sfzFiles();

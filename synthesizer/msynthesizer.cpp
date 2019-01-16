@@ -96,6 +96,19 @@ void MasterSynthesizer::play(const NPlayEvent& event, unsigned syntiIdx)
       }
 
 //---------------------------------------------------------
+//   registerSoundfont
+//---------------------------------------------------------
+
+void MasterSynthesizer::attributeSoundfont(const AudioAttribution& attr, int channel, unsigned syntiIdx)
+      {
+      if (syntiIdx >= _synthesizer.size()) {
+            fprintf(stderr, "MasterSynthesizer::attributeSoundfont: syntiIdx %u out of bounds\n", syntiIdx);
+            return;
+            }
+      _synthesizer[syntiIdx]->attributeSoundfont(attr, channel);
+      }
+
+//---------------------------------------------------------
 //   synthNameToIndex
 //---------------------------------------------------------
 

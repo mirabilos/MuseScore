@@ -11,6 +11,7 @@
 //=============================================================================
 
 #include "mscore/preferences.h"
+#include "synthesizer/audioattribution.h"
 #include "synthesizer/event.h"
 #include "synthesizer/midipatch.h"
 
@@ -309,6 +310,28 @@ QStringList Zerberus::soundFonts() const
       for (ZInstrument* i : instruments)
             sl.append(i->path());
       return sl;
+      }
+
+//---------------------------------------------------------
+//   attributeSoundfont
+//---------------------------------------------------------
+
+void Zerberus::attributeSoundfont(const Ms::AudioAttribution& attr, int channel)
+      {
+      if (channel >= MAX_CHANNEL) {
+            fprintf(stderr, "Zerberus::attributeSoundfont: channel %d out of bounds\n", channel);
+            return;
+            }
+      Channel* cp = _channel[channel];
+      if (cp->instrument() == 0) {
+            fprintf(stderr, "Zerberus::attributeSoundfont: no instrument for channel %d\n", channel);
+            return;
+            }
+      if (attr.hasSoundfont(cp->instrument()->name()))
+            return;
+      QMap<QString, QString> metadata;
+      metadata.insert("format", "SFZ");
+      attr.registerSoundfont(cp->instrument()->name(), metadata);
       }
 
 //---------------------------------------------------------

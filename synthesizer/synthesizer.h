@@ -17,6 +17,7 @@
 
 namespace Ms {
 
+class AudioAttribution;
 struct MidiPatch;
 class PlayEvent;
 class Synth;
@@ -49,6 +50,7 @@ class Synthesizer {
       virtual bool removeSoundFont(const QString&) { return false; }
 
       virtual QStringList soundFonts() const = 0;
+      virtual void attributeSoundfont(const AudioAttribution&, int) { fprintf(stderr, "Synthesizer::attributeSoundfont: abstract\n"); }
 
       virtual void process(unsigned, float*, float*, float*) = 0;
       virtual void play(const PlayEvent&) = 0;

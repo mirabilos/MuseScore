@@ -102,6 +102,7 @@
 #include "synthesizer/synthesizer.h"
 #include "synthesizer/synthesizergui.h"
 #include "synthesizer/msynthesizer.h"
+#include "synthesizer/audioattribution.h"
 #include "fluid/fluid.h"
 #include "qmlplugin.h"
 #include "accessibletoolbutton.h"
@@ -5561,7 +5562,10 @@ bool MuseScore::saveMp3(Score* score, const QString& name)
             progress.show();
 
       AudioAttribution attribs(score);
-      //… collect soundfont stuff
+      for (const MidiMapping& mm : score->midiMapping()) {
+            int syntiIdx = synti->index(mm.articulation->synti);
+            synti->attributeSoundfont(attribs, mm.articulation->channel, syntiIdx);
+            }
       file.write(attribs.getAsID3());
 
       static const int FRAMES = 512;
@@ -5748,98 +5752,6 @@ bool MuseScore::saveMp3(Score* score, const QString& name)
       MScore::sampleRate = oldSampleRate;
       return true;
 #endif
-      }
-
-//---------------------------------------------------------
-//   AudioAttribution
-//---------------------------------------------------------
-
-AudioAttribution::AudioAttribution(Score* score)
-      {
-      QJsonObject toplev;
-      QJsonObject producer;
-      QJsonObject scoreobj;
-      QJsonObject scoremeta;
-
-      producer.insert(QString("name"), QJsonValue("MuseScore"));
-      producer.insert(QString("version"), QJsonValue(VERSION));
-      producer.insert(QString("revision"), QJsonValue(revision));
-
-      // sorted iterator
-      QMapIterator<QString, QString> i(score->metaTags());
-      while (i.hasNext()) {
-            i.next();
-            if (i.value().isEmpty())
-                  continue;
-            scoremeta.insert(i.key(), QJsonValue(i.value()));
-            }
-      scoreobj.insert(QString("file"), score->fileInfo()->fileName());
-      scoreobj.insert(QString("meta"), scoremeta);
-
-      toplev.insert(QString("producer"), producer);
-      toplev.insert(QString("score"), scoreobj);
-      toplev.insert(QString("soundfonts"), _soundfonts);
-      _attr.setObject(toplev);
-      }
-
-//---------------------------------------------------------
-//   registerSoundfont
-//---------------------------------------------------------
-
-void AudioAttribution::registerSoundfont(const QString& file, const QString& format, const QString& INAM, const QString& ICRD, const QString& IENG, const QString& ICOP, const QString& ICMT)
-      {
-      QString tfile = file.trimmed();
-      if (_soundfonts.contains(tfile))
-            return;
-      QJsonObject sf;
-      _soundfonts.insert(tfile, sf);
-
-#define handle_arg(arg, label) do {                         \
-      QString t##arg = arg.trimmed();                       \
-      if (!t##arg.isEmpty())                                \
-            sf.insert(QString(label), QJsonValue(t##arg));  \
-} while (/* CONSTCOND */ 0)
-
-      handle_arg(format, "format");
-      handle_arg(INAM, "name");
-      handle_arg(ICRD, "date");
-      handle_arg(IENG, "engineer");
-      handle_arg(ICOP, "copyright");
-      handle_arg(ICMT, "comment");
-#undef handle_arg
-      }
-
-//---------------------------------------------------------
-//   getAsID3
-//---------------------------------------------------------
-
-QByteArray AudioAttribution::getAsID3()
-      {
-      QByteArray attribution = this->getAttribution();
-      int frameSize = /* encoding */ 1 + attribution.size() + /* NUL */ 1;
-      // NUL-pad up to multiples of 16 to be nice
-      int totalSize = (10 + 10 + frameSize + 15) % 16;
-      int tagSize = totalSize - 10;
-      QByteArray tag(totalSize, '\0');
-
-      // ID3v2.4 tag header
-      tag.insert(0, "ID3\x04", 4);
-      tag.insert(6, ((unsigned int)tagSize >> 21) & 0x7F);
-      tag.insert(7, ((unsigned int)tagSize >> 14) & 0x7F);
-      tag.insert(8, ((unsigned int)tagSize >> 7) & 0x7F);
-      tag.insert(9, (unsigned int)tagSize & 0x7F);
-
-      // frame header
-      tag.insert(10, "TENC", 4);
-      tag.insert(14, ((unsigned int)frameSize >> 21) & 0x7F);
-      tag.insert(15, ((unsigned int)frameSize >> 14) & 0x7F);
-      tag.insert(16, ((unsigned int)frameSize >> 7) & 0x7F);
-      tag.insert(17, (unsigned int)frameSize & 0x7F);
-      // frame body
-      tag.insert(20, /* UTF-8 */ '\x03');
-      tag.insert(21, attribution);
-
-      return tag;
       }
 
 }
