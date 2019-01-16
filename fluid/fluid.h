@@ -372,7 +372,7 @@ class Fluid : public Synthesizer {
       virtual bool addSoundFont(const QString& s);
       virtual bool removeSoundFont(const QString& s);
       virtual QStringList soundFonts() const;
-      virtual void attributeSoundfont(const AudioAttribution&, int);
+      virtual void attributeSoundfont(AudioAttribution&, int);
 
       void start_voice(Voice* voice);
       Voice* alloc_voice(unsigned id, Sample* sample, int chan, int key, int vel, double vt);

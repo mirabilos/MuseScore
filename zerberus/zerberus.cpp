@@ -316,7 +316,7 @@ QStringList Zerberus::soundFonts() const
 //   attributeSoundfont
 //---------------------------------------------------------
 
-void Zerberus::attributeSoundfont(const Ms::AudioAttribution& attr, int channel)
+void Zerberus::attributeSoundfont(Ms::AudioAttribution& attr, int channel)
       {
       if (channel >= MAX_CHANNEL) {
             fprintf(stderr, "Zerberus::attributeSoundfont: channel %d out of bounds\n", channel);

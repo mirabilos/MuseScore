@@ -606,7 +606,7 @@ QStringList Fluid::soundFonts() const
 //   attributeSoundfont
 //---------------------------------------------------------
 
-void Fluid::attributeSoundfont(const AudioAttribution& attr, int ch)
+void Fluid::attributeSoundfont(AudioAttribution& attr, int ch)
       {
       if (ch >= channel.size()) {
             fprintf(stderr, "Fluid::attributeSoundfont: channel %d out of bounds\n", ch);

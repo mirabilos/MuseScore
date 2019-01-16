@@ -1707,12 +1707,12 @@ void SFont::safe_fseek(long ofs)
 //   attributeSoundfont
 //---------------------------------------------------------
 
-void Preset::attributeSoundfont(const Ms::AudioAttribution& attr)
+void Preset::attributeSoundfont(Ms::AudioAttribution& attr)
       {
       sfont->attributeSoundfont(attr);
       }
 
-void SFont::attributeSoundfont(const Ms::AudioAttribution& attr)
+void SFont::attributeSoundfont(Ms::AudioAttribution& attr)
       {
       if (attr.hasSoundfont(f.fileName()))
             return;
