@@ -61,27 +61,30 @@ QByteArray AudioAttribution::getAsID3()
       QByteArray attribution = this->getAttribution();
       int frameSize = /* encoding */ 1 + attribution.size() + /* NUL */ 1;
       // NUL-pad up to multiples of 16 to be nice
-      int totalSize = (10 + 10 + frameSize + 15) % 16;
+      int totalSize = (10 + 10 + frameSize + 15) & ~15;
       int tagSize = totalSize - 10;
       QByteArray tag(totalSize, '\0');
 
       // ID3v2.4 tag header
-      tag.insert(0, "ID3\x04", 4);
-      tag.insert(6, ((unsigned int)tagSize >> 21) & 0x7F);
-      tag.insert(7, ((unsigned int)tagSize >> 14) & 0x7F);
-      tag.insert(8, ((unsigned int)tagSize >> 7) & 0x7F);
-      tag.insert(9, (unsigned int)tagSize & 0x7F);
+      tag.replace(0, 4, "ID3\x04", 4);
+      tag[6] = ((unsigned int)tagSize >> 21) & 0x7F;
+      tag[7] = ((unsigned int)tagSize >> 14) & 0x7F;
+      tag[8] = ((unsigned int)tagSize >> 7) & 0x7F;
+      tag[9] = (unsigned int)tagSize & 0x7F;
 
       // frame header
-      tag.insert(10, "TENC", 4);
-      tag.insert(14, ((unsigned int)frameSize >> 21) & 0x7F);
-      tag.insert(15, ((unsigned int)frameSize >> 14) & 0x7F);
-      tag.insert(16, ((unsigned int)frameSize >> 7) & 0x7F);
-      tag.insert(17, (unsigned int)frameSize & 0x7F);
+      tag.replace(10, 4, "TENC", 4);
+      tag[14] = ((unsigned int)frameSize >> 21) & 0x7F;
+      tag[15] = ((unsigned int)frameSize >> 14) & 0x7F;
+      tag[16] = ((unsigned int)frameSize >> 7) & 0x7F;
+      tag[17] = (unsigned int)frameSize & 0x7F;
       // frame body
-      tag.insert(20, /* UTF-8 */ '\x03');
-      tag.insert(21, attribution);
+      tag[20] = /* UTF-8 */ '\x03';
+      tag.replace(21, attribution.size(), attribution);
 
+      // consistency check
+      if (tag.size() != totalSize)
+            fprintf(stderr, "AudioAttribution::getAsID3: internal error: size (%d, %d) mismatch!\n", tag.size(), totalSize);
       return tag;
       }
 
