@@ -1718,7 +1718,7 @@ void SFont::attributeSoundfont(Ms::AudioAttribution& attr)
             return;
       QMap<QString, QString> metadata;
       metadata.insert("format", "SF2");
-      attr.registerSoundfont(f.fileName()), metadata);
+      attr.registerSoundfont(f.fileName(), metadata);
       }
 
 }
