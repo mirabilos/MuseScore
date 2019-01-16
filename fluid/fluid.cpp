@@ -18,7 +18,6 @@
  * 02111-1307, USA
  */
 
-#include "synthesizer/audioattribution.h"
 #include "synthesizer/event.h"
 #include "synthesizer/msynthesizer.h"
 #include "mscore/preferences.h"
@@ -613,8 +612,12 @@ void Fluid::attributeSoundfont(const AudioAttribution& attr, int ch)
             fprintf(stderr, "Fluid::attributeSoundfont: channel %d out of bounds\n", ch);
             return;
             }
-      //…
-      fprintf(stderr, "Fluid::attributeSoundfont: not yet implemented\n");
+      Channel* cp = channel[ch];
+      if (cp->preset() == 0) {
+            fprintf(stderr, "Fluid::attributeSoundfont: channel %d has no preset\n", ch);
+            return;
+      }
+      cp->preset()->attributeSoundfont(attr);
       }
 
 //---------------------------------------------------------

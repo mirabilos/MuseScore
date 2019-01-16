@@ -26,6 +26,10 @@
 #include "config.h"
 #include "fluid.h"
 
+namespace Ms {
+class AudioAttribution;
+}
+
 namespace FluidS {
 
 class Preset;
@@ -98,6 +102,7 @@ class SFont {
       void safe_fread(void *buf, int count);
       void safe_fseek(long ofs);
       bool load();
+      void attributeSoundfont(const Ms::AudioAttribution& attr);
 
    public:
       SFont(Fluid* f);
@@ -234,6 +239,7 @@ class Preset {
 
       void setGlobalZone(Zone* z)               { _global_zone = z;   }
       bool importSfont();
+      void attributeSoundfont(const Ms::AudioAttribution&);
 
       Zone* global_zone()                       { return _global_zone; }
       void loadSamples();

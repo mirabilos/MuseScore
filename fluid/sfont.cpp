@@ -28,6 +28,7 @@
 // #define DEBUG_SFONT
 
 #include "libmscore/xml.h"
+#include "synthesizer/audioattribution.h"
 
 static bool debugMode = false;
 
@@ -1701,5 +1702,23 @@ void SFont::safe_fseek(long ofs)
       if (!f.seek(newpos))
             throw(QString("File seek failed with offset = %1").arg(ofs));
       }
-}
 
+//---------------------------------------------------------
+//   attributeSoundfont
+//---------------------------------------------------------
+
+void Preset::attributeSoundfont(const Ms::AudioAttribution& attr)
+      {
+      sfont->attributeSoundfont(attr);
+      }
+
+void SFont::attributeSoundfont(const Ms::AudioAttribution& attr)
+      {
+      if (attr.hasSoundfont(f.fileName()))
+            return;
+      QMap<QString, QString> metadata;
+      metadata.insert("format", "SF2");
+      attr.registerSoundfont(f.fileName()), metadata);
+      }
+
+}
