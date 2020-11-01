@@ -11,6 +11,7 @@
 //=============================================================================
 
 #include "libmscore/score.h"
+#include "libmscore/page.h"
 #include "libmscore/measure.h"
 #include "libmscore/segment.h"
 #include "libmscore/repeatlist.h"
@@ -45,25 +46,42 @@ static void saveMeasureEvents(XmlWriter& xml, Measure* m, int offset)
 
 //---------------------------------------------------------
 //   savePositions
-//    output in 100 dpi
 //---------------------------------------------------------
 
 bool MuseScore::savePositions(Score* score, QIODevice* device, bool segments, bool legacyExport)
       {
-      segs.clear();
-      XmlWriter xml(score, device);
-      xml.header();
-      xml.stag("score");
-      xml.stag("elements");
-      int id = 0;
+      QString element;
+      if (legacyExport)
+            element = QString("element id=\"%1\" x=\"%2\" y=\"%3\" sx=\"%4\" sy=\"%5\" page=\"%6\"");
+      else
+            element = QString("element id=\"%1\" x=\"%2\" y=\"%3\" w=\"%4\" h=\"%5\" page=\"%6\"");
 
       qreal ndpi = (qreal) preferences.getDouble(PREF_EXPORT_PNG_RESOLUTION) / DPI;
       if (legacyExport)
             ndpi *= 12;
 
+      QRectF pagebox = score->pages().front()->abbox();
+      int pagewidth  = qCeil(pagebox.width() * ndpi);
+      int pageheight = qCeil(pagebox.height() * ndpi);
+
+      segs.clear();
+      XmlWriter xml(score, device);
+      xml.header();
+      xml.stag(QString("score posformat=\"%1\" kind=\"%2\" width=\"%3\" height=\"%4\"")
+               .arg(legacyExport ? 1 : 2)
+               .arg(segments ? "segment" : "measure")
+               .arg(pagewidth).arg(pageheight));
+      xml.stag("elements");
+      int id = 0;
+
       if (segments) {
             for (Segment* s = score->firstMeasureMM()->first(SegmentType::ChordRest);
                s; s = s->next1MM(SegmentType::ChordRest)) {
+                  // offset into the page, round down
+                  int x      = qFloor(s->pagePos().x() * ndpi);
+                  int y      = qFloor(s->pagePos().y() * ndpi);
+
+                  // width/height, round up
                   qreal sx   = 0;
                   int tracks = score->nstaves() * VOICES;
                   for (int track = 0; track < tracks; track++) {
@@ -71,22 +89,18 @@ bool MuseScore::savePositions(Score* score, QIODevice* device, bool segments, bo
                         if (e)
                               sx = qMax(sx, e->width());
                         }
-
-                  sx      *= ndpi;
-                  int sy   = s->measure()->system()->height() * ndpi;
-                  int x    = s->pagePos().x() * ndpi;
-                  int y    = s->pagePos().y() * ndpi;
+                  int w    = qCeil(sx * ndpi);
+                  int h    = qCeil(s->measure()->system()->height() * ndpi);
 
                   Page* p  = s->measure()->system()->page();
                   int page = score->pageIdx(p);
 
-                  xml.tagE(QString("element id=\"%1\" x=\"%2\" y=\"%3\" sx=\"%4\""
-                  " sy=\"%5\" page=\"%6\"")
+                  xml.tagE(element
                      .arg(id)
                      .arg(x)
                      .arg(y)
-                     .arg(sx)
-                     .arg(sy)
+                     .arg(w)
+                     .arg(h)
                      .arg(page));
 
                   segs[(void*)s] = id++;
@@ -95,21 +109,20 @@ bool MuseScore::savePositions(Score* score, QIODevice* device, bool segments, bo
             }
       else {
             for (Measure* m = score->firstMeasureMM(); m; m = m->nextMeasureMM()) {
-                  qreal sx   = m->bbox().width() * ndpi;
-                  qreal sy   = m->system()->height() * ndpi;
-                  qreal x    = m->pagePos().x() * ndpi;
-                  qreal y    = m->system()->pagePos().y() * ndpi;
+                  int x    = qFloor(m->pagePos().x() * ndpi);
+                  int y    = qFloor(m->system()->pagePos().y() * ndpi);
+                  int w    = qCeil(m->bbox().width() * ndpi);
+                  int h    = qCeil(m->system()->height() * ndpi);
 
                   Page* p  = m->system()->page();
                   int page = score->pageIdx(p);
 
-                  xml.tagE(QString("element id=\"%1\" x=\"%2\" y=\"%3\" sx=\"%4\""
-                  " sy=\"%5\" page=\"%6\"")
+                  xml.tagE(element
                      .arg(id)
                      .arg(x)
                      .arg(y)
-                     .arg(sx)
-                     .arg(sy)
+                     .arg(w)
+                     .arg(h)
                      .arg(page));
 
                   segs[(void*)m] = id++;
