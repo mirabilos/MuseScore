@@ -77,20 +77,15 @@ bool MuseScore::savePositions(Score* score, QIODevice* device, bool segments, bo
       if (segments) {
             for (Segment* s = score->firstMeasureMM()->first(SegmentType::ChordRest);
                s; s = s->next1MM(SegmentType::ChordRest)) {
+                  QRectF b = s->sposBBox();
+
                   // offset into the page, round down
-                  int x      = qFloor(s->pagePos().x() * ndpi);
-                  int y      = qFloor(s->pagePos().y() * ndpi);
+                  int x    = qFloor(b.x() * ndpi);
+                  int y    = qFloor(b.y() * ndpi);
 
                   // width/height, round up
-                  qreal sx   = 0;
-                  int tracks = score->nstaves() * VOICES;
-                  for (int track = 0; track < tracks; track++) {
-                        Element* e = s->element(track);
-                        if (e)
-                              sx = qMax(sx, e->width());
-                        }
-                  int w    = qCeil(sx * ndpi);
-                  int h    = qCeil(s->measure()->system()->height() * ndpi);
+                  int w    = qCeil(b.width() * ndpi);
+                  int h    = qCeil(b.height() * ndpi);
 
                   Page* p  = s->measure()->system()->page();
                   int page = score->pageIdx(p);
